@@ -8,6 +8,12 @@ static const float focuscolor[]            = {0.55, 0.75, 1.00, 1.00};
 /* To conform the xdg-protocol, set the alpha to zero to restore the old behavior */
 static const float fullscreen_bg[]         = {0.00, 0.00, 0.00, 1.00};
 
+/* Autostart */
+static const char *const autostart[] = {
+        "wbg", "/path/to/your/image", NULL,
+        NULL /* terminate */
+};
+
 /* tagging - tagcount must be no greater than 31 */
 #define TAGCOUNT (10)
 static const int tagcount = TAGCOUNT;
