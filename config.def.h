@@ -10,13 +10,16 @@ static const float fullscreen_bg[]         = {0.00, 0.00, 0.00, 1.00};
 
 /* Autostart */
 static const char *const autostart[] = {
-        "wbg", "/path/to/your/image", NULL,
-        NULL /* terminate */
+	"/home/korei/.config/dwl/dwlinit.sh", NULL,
+	NULL /* terminate */
 };
 
 /* tagging - tagcount must be no greater than 31 */
 #define TAGCOUNT (10)
 static const int tagcount = TAGCOUNT;
+
+/* pointer constraints */
+static const int allow_constrain = 1;
 
 static const Rule rules[] = {
 	/* app_id     title       tags mask     isfloating   monitor */
@@ -30,8 +33,9 @@ static const Rule rules[] = {
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },
-	{ "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
+	{ "|v|",      vertile },
+	{ "><>",      NULL },    /* no layout function means floating behavior */
 };
 
 /* monitors */
@@ -48,9 +52,10 @@ static const MonitorRule monrules[] = {
 static const struct xkb_rule_names xkb_rules = {
 	/* can specify fields: rules, model, layout, variant, options */
 	/* example:
-	.options = "ctrl:nocaps",
-	*/
-	.options = NULL,
+	   .options = "ctrl:nocaps",
+	   */
+	.layout = "us,ua",
+	.options = "grp:win_space_toggle,caps:escape",
 };
 
 static const int repeat_rate = 60;
@@ -96,6 +101,7 @@ static const double accel_speed = -0.5;
 /* separate variables for trackpad */
 static const enum libinput_config_accel_profile accel_profile_trackpad = LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
 static const double accel_speed_trackpad = -0.0;
+
 /* You can choose between:
 LIBINPUT_CONFIG_TAP_MAP_LRM -- 1/2/3 finger tap maps to left/right/middle
 LIBINPUT_CONFIG_TAP_MAP_LMR -- 1/2/3 finger tap maps to left/middle/right
@@ -103,7 +109,11 @@ LIBINPUT_CONFIG_TAP_MAP_LMR -- 1/2/3 finger tap maps to left/middle/right
 static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TAP_MAP_LRM;
 
 /* If you want to use the windows key for MODKEY, use WLR_MODIFIER_LOGO */
-#define MODKEY WLR_MODIFIER_ALT
+#define MODKEY WLR_MODIFIER_LOGO
+#define SHIFT WLR_MODIFIER_SHIFT
+#define ALT WLR_MODIFIER_ALT
+#define CTRL WLR_MODIFIER_CTRL
+#define SUPER WLR_MODIFIER_LOGO
 
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
@@ -115,48 +125,114 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *termcmd[] = { "foot", NULL };
-static const char *menucmd[] = { "bemenu-run", NULL };
+static const char* term[] =          	{ "foot", NULL };
+static const char* cmd[] =           	{ "sh", "-c", "$(tofi-run)", NULL };
+static const char* menu[] =          	{ "tofi-drun", "--drun-launch=true", NULL };
+static const char* PowerMenu[] =     	{ "tofi-powermenu.sh", NULL };
+static const char* AudioUpdate[] =   	{ "pkill", "-RTMIN+12", "someblocks", NULL };
+static const char* AudioLower[] =    	{ "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%-", NULL };
+static const char* AudioRaise[] =    	{ "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%+", NULL };
+static const char* AudioMute[] =     	{ "wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL };
+static const char* MicMute[] =       	{ "MuteMic.sh", NULL };
+static const char* AudioPlayPause[] =	{ "playerctl", "play-pause", NULL };
+static const char* AudioPause[] =    	{ "playerctl", "pause", NULL };
+static const char* AudioNext[] =     	{ "playerctl", "next", NULL };
+static const char* AudioPrev[] =     	{ "playerctl", "previous", NULL };
+static const char* Mako[] =          	{ "mako.sh", NULL };
+static const char* Mixer[] =         	{ "foot", "pulsemixer", NULL };
+static const char* Emoji[] =         	{ "tofi-emoji", NULL };
+static const char* Calc[] =          	{ "foot", "qalc", NULL };
+static const char* Print[] =         	{ "PrintDwl.sh", NULL };
+static const char* PrintSel[] =      	{ "PrintDwl.sh", "Select", NULL };
+static const char* PrintSave[] =     	{ "PrintDwl.sh", "Save", NULL };
+static const char* PrintSelSave[] =  	{ "PrintDwl.sh", "SelectSave", NULL };
+static const char* BMonUp[] =        	{ "light", "-T", "1.1", NULL };
+static const char* BMonDown[] =      	{ "light", "-T", "0.9", NULL };
+static const char* BufferSave[] =    	{ "buffer-save.sh", NULL };
+static const char* BufferToggle[] =  	{ "buffer-toggle.sh", NULL };
+static const char* RecToggle[] =     	{ "rec-toggle.sh", NULL };
+static const char* ScreenLock[] =    	{ "Lock.sh", "lock", NULL };
+static const char* Swayidle[] =      	{ "Lock.sh", "toggle", NULL };
+static const char* ToggleBar[] =     	{ "somebar", "-c", "toggle", "all", NULL };
+static const char* Thunar[] =     	{ "Thunar", NULL };
 
 #include "keys.h"
 static const Key keys[] = {
-	/* modifier                  key          function        argument */
-	{ MODKEY,                    Key_p,       spawn,          {.v = menucmd} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, Key_Return,  spawn,          {.v = termcmd} },
-	{ MODKEY,                    Key_j,       focusstack,     {.i = +1} },
-	{ MODKEY,                    Key_k,       focusstack,     {.i = -1} },
-	{ MODKEY,                    Key_i,       incnmaster,     {.i = +1} },
-	{ MODKEY,                    Key_d,       incnmaster,     {.i = -1} },
-	{ MODKEY,                    Key_h,       setmfact,       {.f = -0.05} },
-	{ MODKEY,                    Key_l,       setmfact,       {.f = +0.05} },
-	{ MODKEY,                    Key_Return,  zoom,           {0} },
-	{ MODKEY,                    Key_Tab,     view,           {0} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, Key_c,       killclient,     {0} },
-	{ MODKEY,                    Key_t,       setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                    Key_f,       setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                    Key_m,       setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                    Key_space,   setlayout,      {0} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, Key_space,   togglefloating, {0} },
-	{ MODKEY,                    Key_e,       togglefullscreen, {0} },
-	{ MODKEY,                    Key_0,       view,           {.ui = ~0} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, Key_0,       tag,            {.ui = ~0} },
-	{ MODKEY,                    Key_comma,   focusmon,       {.i = WLR_DIRECTION_LEFT} },
-	{ MODKEY,                    Key_period,  focusmon,       {.i = WLR_DIRECTION_RIGHT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, Key_comma,   tagmon,         {.i = WLR_DIRECTION_LEFT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, Key_period,  tagmon,         {.i = WLR_DIRECTION_RIGHT} },
-	TAGKEYS(                     Key_1,                       0),
-	TAGKEYS(                     Key_2,                       1),
-	TAGKEYS(                     Key_3,                       2),
-	TAGKEYS(                     Key_4,                       3),
-	TAGKEYS(                     Key_5,                       4),
-	TAGKEYS(                     Key_6,                       5),
-	TAGKEYS(                     Key_7,                       6),
-	TAGKEYS(                     Key_8,                       7),
-	TAGKEYS(                     Key_9,                       8),
-	{ MODKEY|WLR_MODIFIER_SHIFT, Key_q,       quit,           {0} },
-
+  /* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
+  /* modifier		key				function		argument */
+  { 0, Key_XF86AudioPlay, spawn, { .v = AudioPlayPause } },
+  { 0, Key_XF86AudioPause, spawn, { .v = AudioPause } },
+  { 0, Key_XF86AudioNext, spawn, { .v = AudioNext } },
+  { 0, Key_XF86AudioPrev, spawn, { .v = AudioPrev } },
+  { 0, Key_XF86AudioLowerVolume, spawn, { .v = AudioLower } },
+  { 0, Key_XF86AudioRaiseVolume, spawn, { .v = AudioRaise } },
+  { 0, Key_XF86AudioMute, spawn, { .v = AudioMute } },
+  { 0, Key_XF86AudioMicMute, spawn, { .v = MicMute } },
+  { SUPER, Key_n, spawn, { .v = MicMute } },
+  { 0, Key_XF86AudioLowerVolume, spawn, { .v = AudioUpdate } },
+  { 0, Key_XF86AudioRaiseVolume, spawn, { .v = AudioUpdate } },
+  { 0, Key_XF86AudioMute, spawn, { .v = AudioUpdate } },
+  { 0, Key_XF86MonBrightnessUp, spawn, { .v = BMonUp } },
+  { 0, Key_XF86MonBrightnessDown, spawn, { .v = BMonDown } },
+  { 0, Key_Print, spawn, { .v = Print } },
+  { SUPER, Key_Print, spawn, { .v = PrintSave } },
+  { SHIFT, Key_Print, spawn, { .v = PrintSel } },
+  { SUPER | SHIFT, Key_Print, spawn, { .v = PrintSelSave } },
+  { SUPER | SHIFT, Key_Insert, spawn, { .v = Mako } },
+  { SUPER, Key_Insert, spawn, { .v = Mixer } },
+  { SUPER | CTRL, Key_Insert, spawn, { .v = Swayidle } },
+  { SUPER, Key_e, spawn, { .v = Calc } },
+  { SUPER, Key_t, spawn, { .v = Thunar } },
+  { SUPER, Key_p, spawn, { .v = menu } },
+  { SUPER | CTRL, Key_p, spawn, { .v = Emoji } },
+  { SUPER, Key_b, spawn, { .v = ToggleBar } },
+  { SUPER, Key_Return, spawn, { .v = term } },
+  { SUPER | SHIFT, Key_p, spawn, { .v = cmd } },
+  { SUPER, Key_p, spawn, { .v = menu } },
+  { SUPER, Key_j, focusstack, { .i = +1 } },
+  { SUPER, Key_k, focusstack, { .i = -1 } },
+  { SUPER, Key_z, focusstack, { .i = +1 } },
+  { SUPER, Key_x, focusstack, { .i = -1 } },
+  { SUPER, Key_i, incnmaster, { .i = +1 } },
+  { SUPER | SHIFT, Key_i, incnmaster, { .i = -1 } },
+  { SUPER, Key_h, setmfact, { .f = -0.05 } },
+  { SUPER, Key_l, setmfact, { .f = +0.05 } },
+  { SUPER, Key_c, setlayout, { .v = &layouts[0] } },
+  { SUPER, Key_s, setlayout, { .v = &layouts[1] } },
+  { SUPER, Key_v, setlayout, { .v = &layouts[2] } },
+  { SUPER, Key_grave, togglefloating, { 0 } },
+  { SUPER, Key_f, togglefullscreen, { 0 } },
+  { SUPER, Key_g, zoom, { 0 } },
+  { SUPER, Key_Tab, view, { 0 } },
+  { SUPER, Key_a, rotatetags, { .i = -1 } },
+  { SUPER, Key_d, rotatetags, { .i =  1 } },
+  { SUPER | SHIFT, Key_a, rotatetags, { .i = -2 } },
+  { SUPER | SHIFT, Key_d, rotatetags, { .i =  2 } },
+  { SUPER | SHIFT, Key_s, togglesticky, { 0 } },
+  { SUPER, Key_w, killclient, { 0 } },
+  { ALT, Key_Escape, spawn, { .v = PowerMenu } },
+  { ALT, Key_Caps_Lock, spawn, { .v = PowerMenu } },
+  { SUPER, Key_Home, spawn, { .v = BufferToggle } },
+  { SUPER, Key_End, spawn, { .v = BufferSave } },
+  { SUPER, Key_F12, spawn, { .v = RecToggle } },
+  { SUPER | SHIFT, Key_BackSpace, spawn, { .v = ScreenLock } },
+  { SUPER, Key_comma, focusmon, { .i = WLR_DIRECTION_LEFT } },
+  { SUPER, Key_period, focusmon, { .i = WLR_DIRECTION_RIGHT } },
+  { SUPER | SHIFT, Key_comma, tagmon, { .i = WLR_DIRECTION_LEFT } },
+  { SUPER | SHIFT, Key_period, tagmon, { .i = WLR_DIRECTION_RIGHT } },
+  TAGKEYS(Key_1, 0),
+  TAGKEYS(Key_2, 1),
+  TAGKEYS(Key_3, 2),
+  TAGKEYS(Key_4, 3),
+  TAGKEYS(Key_5, 4),
+  TAGKEYS(Key_6, 5),
+  TAGKEYS(Key_7, 6),
+  TAGKEYS(Key_8, 7),
+  TAGKEYS(Key_9, 8),
+  TAGKEYS(Key_0, 9),
+	{ SUPER | SHIFT,	Key_q,				quit,			{ 0 } },
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
-	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,Key_BackSpace, quit, {0} },
+	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
 #define CHVT(KEY,n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, KEY, chvt, {.ui = (n)} }
 	CHVT(Key_F1, 1), CHVT(Key_F2,  2),  CHVT(Key_F3,  3),  CHVT(Key_F4,  4),
 	CHVT(Key_F5, 5), CHVT(Key_F6,  6),  CHVT(Key_F7,  7),  CHVT(Key_F8,  8),
