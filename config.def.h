@@ -134,41 +134,41 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char* term[] =          	{ "foot", NULL };
-static const char* cmd[] =           	{ "sh", "-c", "$(tofi-run)", NULL };
-static const char* menu[] =          	{ "tofi-drun", "--drun-launch=true", NULL };
-static const char* PowerMenu[] =     	{ "tofi-powermenu.sh", NULL };
-static const char* AudioUpdate[] =   	{ "pkill", "-RTMIN+12", "someblocks", NULL };
-static const char* AudioLower[] =    	{ "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%-", NULL };
-static const char* AudioRaise[] =    	{ "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%+", NULL };
-static const char* AudioMute[] =     	{ "wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL };
-static const char* MicMute[] =       	{ "MuteMic.sh", NULL };
-static const char* AudioPlayPause[] =	{ "playerctl", "play-pause", NULL };
-static const char* AudioPause[] =    	{ "playerctl", "pause", NULL };
-static const char* AudioNext[] =     	{ "playerctl", "next", NULL };
-static const char* AudioPrev[] =     	{ "playerctl", "previous", NULL };
-static const char* Mako[] =          	{ "mako.sh", NULL };
-static const char* Mixer[] =         	{ "foot", "pulsemixer", NULL };
-static const char* Emoji[] =         	{ "tofi-emoji", NULL };
-static const char* Calc[] =          	{ "foot", "qalc", NULL };
-static const char* Print[] =         	{ "PrintDwl.sh", NULL };
-static const char* PrintSel[] =      	{ "PrintDwl.sh", "Select", NULL };
-static const char* PrintSave[] =     	{ "PrintDwl.sh", "Save", NULL };
-static const char* PrintSelSave[] =  	{ "PrintDwl.sh", "SelectSave", NULL };
-static const char* BMonUp[] =        	{ "light", "-T", "1.1", NULL };
-static const char* BMonDown[] =      	{ "light", "-T", "0.9", NULL };
-static const char* BufferSave[] =    	{ "buffer-save.sh", NULL };
-static const char* BufferToggle[] =  	{ "buffer-toggle.sh", NULL };
-static const char* RecToggle[] =     	{ "rec-toggle.sh", NULL };
-static const char* ScreenLock[] =    	{ "Lock.sh", "lock", NULL };
-static const char* Swayidle[] =      	{ "Lock.sh", "toggle", NULL };
-static const char* ToggleBar[] =     	{ "somebar", "-c", "toggle", "all", NULL };
-static const char* Thunar[] =     	{ "Thunar", NULL };
+static const char* term[] = { "footclient", NULL };
+static const char* cmd[] = { "sh", "-c", "$(tofi-run)", NULL };
+static const char* menu[] = { "fuzzel", NULL };
+static const char* PowerMenu[] = { "tofi-powermenu.sh", NULL };
+static const char* AudioUpdate[] = { "pkill", "-RTMIN+12", "someblocks", NULL };
+static const char* AudioLower[] = { "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%-", NULL };
+static const char* AudioRaise[] = { "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%+", NULL };
+static const char* AudioMute[] = { "wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL };
+static const char* MicMute[] = { "MuteMic.sh", NULL };
+static const char* AudioPlayPause[] = { "playerctl", "play-pause", NULL };
+static const char* AudioPause[] = { "playerctl", "pause", NULL };
+static const char* AudioNext[] = { "playerctl", "next", NULL };
+static const char* AudioPrev[] = { "playerctl", "previous", NULL };
+static const char* Mako[] = { "mako.sh", NULL };
+static const char* Mixer[] = { "footclient", "pulsemixer", NULL };
+static const char* Emoji[] = { "tofi-emoji", NULL };
+static const char* Calc[] = { "footclient", "-e", "qalc", NULL };
+static const char* Print[] = { "PrintDwl.sh", NULL };
+static const char* PrintSel[] = { "PrintDwl.sh", "Select", NULL };
+static const char* PrintSave[] = { "PrintDwl.sh", "Save", NULL };
+static const char* PrintSelSave[] = { "PrintDwl.sh", "SelectSave", NULL };
+static const char* BMonUp[] = { "light", "-T", "1.4", NULL };
+static const char* BMonDown[] = { "light", "-T", "0.72", NULL };
+static const char* BufferSave[] = { "buffer-save.sh", NULL };
+static const char* BufferToggle[] = { "buffer-toggle.sh", NULL };
+static const char* RecToggle[] = { "rec-toggle.sh", NULL };
+static const char* ScreenLock[] = { "Lock.sh", "lock", NULL };
+static const char* Swayidle[] = { "Lock.sh", "toggle", NULL };
+static const char* Thunar[] = { "Thunar", NULL };
 
 #include "keys.h"
 static const Key keys[] = {
   /* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
   /* modifier		key				function		argument */
+	{ SUPER, Key_b, togglebar, {0}},
   { 0, Key_XF86AudioPlay, spawn, { .v = AudioPlayPause } },
   { 0, Key_XF86AudioPause, spawn, { .v = AudioPause } },
   { 0, Key_XF86AudioNext, spawn, { .v = AudioNext } },
@@ -194,7 +194,6 @@ static const Key keys[] = {
   { SUPER, Key_t, spawn, { .v = Thunar } },
   { SUPER, Key_p, spawn, { .v = menu } },
   { SUPER | CTRL, Key_p, spawn, { .v = Emoji } },
-  { SUPER, Key_b, spawn, { .v = ToggleBar } },
   { SUPER, Key_Return, spawn, { .v = term } },
   { SUPER | SHIFT, Key_p, spawn, { .v = cmd } },
   { SUPER, Key_p, spawn, { .v = menu } },
