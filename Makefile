@@ -11,14 +11,14 @@ DWLDEVCFLAGS = -pedantic -Wall -Wextra -Wdeclaration-after-statement -Wno-unused
 # CFLAGS / LDFLAGS
 CC	      = c99
 CFLAGS 	  = -O1 -march=native
-PKGS      = wlroots wayland-server xkbcommon libinput $(XLIBS)
+PKGS      = wlroots wayland-server xkbcommon libinput pixman-1 $(XLIBS)
 DWLCFLAGS = `$(PKG_CONFIG) --cflags $(PKGS)` $(DWLCPPFLAGS) $(DWLDEVCFLAGS) $(CFLAGS)
-LDLIBS    = `$(PKG_CONFIG) --libs $(PKGS)` $(LIBS)
+LDLIBS    = `$(PKG_CONFIG) --libs $(PKGS)` -lm $(LIBS)
 
 all: dwl
 dwl: dwl.o util.o dwl-ipc-unstable-v2-protocol.o
 	$(CC) dwl.o util.o dwl-ipc-unstable-v2-protocol.o $(LDLIBS) $(LDFLAGS) $(DWLCFLAGS) -o $@
-dwl.o: dwl.c config.mk config.def.h client.h xdg-shell-protocol.h wlr-layer-shell-unstable-v1-protocol.h wlr-output-power-management-unstable-v1-protocol.h dwl-ipc-unstable-v2-protocol.h
+dwl.o: dwl.c config.mk config.def.h client.h xdg-shell-protocol.h wlr-layer-shell-unstable-v1-protocol.h wlr-output-power-management-unstable-v1-protocol.h dwl-ipc-unstable-v2-protocol.h pointer-constraints-unstable-v1-protocol.h
 util.o: util.c util.h
 dwl-ipc-unstable-v2-protocol.o: dwl-ipc-unstable-v2-protocol.h
 
@@ -43,6 +43,9 @@ dwl-ipc-unstable-v2-protocol.h:
 dwl-ipc-unstable-v2-protocol.c:
 	$(WAYLAND_SCANNER) private-code \
 		protocols/dwl-ipc-unstable-v2.xml $@
+pointer-constraints-unstable-v1-protocol.h:
+	$(WAYLAND_SCANNER) server-header \
+		$(WAYLAND_PROTOCOLS)/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml $@
 
 clean:
 	rm -f dwl *.o *-protocol.h
