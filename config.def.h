@@ -1,3 +1,8 @@
+/* Taken from https://github.com/djpohly/dwl/issues/466 */
+#define COLOR(hex)    { ((hex >> 24) & 0xFF) / 255.0f, \
+                        ((hex >> 16) & 0xFF) / 255.0f, \
+                        ((hex >> 8) & 0xFF) / 255.0f, \
+                        (hex & 0xFF) / 255.0f }
 /* appearance */
 static const int sloppyfocus               = 1;  /* focus follows mouse */
 static const int bypass_surface_visibility = 0;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
@@ -5,8 +10,9 @@ static const int smartborders              = 1;
 static const unsigned int borderpx         = 3;  /* border pixel of windows */
 static const float bordercolor[]           = {0.00, 0.00, 0.00, 0.00};
 static const float focuscolor[]            = {0.55, 0.75, 1.00, 1.00};
+static const float urgentcolor[]           = COLOR(0xd54e53ff);
 /* To conform the xdg-protocol, set the alpha to zero to restore the old behavior */
-static const float fullscreen_bg[]         = {0.00, 0.00, 0.00, 1.00};
+static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0}; /* You can also use glsl colors */
 
 /* Autostart */
 static const char *const autostart[] = {
