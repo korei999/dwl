@@ -21,6 +21,15 @@ static const int tagcount = TAGCOUNT;
 /* pointer constraints */
 static const int allow_constrain = 1;
 
+/* keyboard layout change notification for status bar */
+/* example using someblocks:
+static const char  kblayout_file[] = "/tmp/dwl-keymap";
+static const char *kblayout_cmd[]  = {"pkill", "-RTMIN+1", "someblocks", NULL};
+*/
+static const char  kblayout_file[] = "/tmp/dwl-keymap";
+static const char *kblayout_cmd[]  = {"pkill", "-RTMIN+1", "someblocks", NULL};
+static const int   kblayout_perclient = 0;
+
 static const Rule rules[] = {
 	/* app_id     title       tags mask     isfloating   monitor */
 	/* examples:

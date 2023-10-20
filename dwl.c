@@ -128,6 +128,7 @@ typedef struct {
 	uint32_t tags;
 	int isfloating, isurgent, isfullscreen, issticky;
 	uint32_t resize; /* configure serial of a pending resize */
+	xkb_layout_index_t layout_idx;
 } Client;
 
 typedef struct {
@@ -148,6 +149,8 @@ typedef struct {
 	struct wl_listener modifiers;
 	struct wl_listener key;
 	struct wl_listener destroy;
+
+	xkb_layout_index_t layout_idx;
 } Keyboard;
 
 typedef struct {
@@ -265,6 +268,7 @@ static void fullscreennotify(struct wl_listener *listener, void *data);
 static void handlesig(int signo);
 static void incnmaster(const Arg *arg);
 static void inputdevice(struct wl_listener *listener, void *data);
+static void kblayoutnotify(Keyboard *kb, int update);
 static int keybinding(uint32_t mods, xkb_keycode_t keycode);
 static void keypress(struct wl_listener *listener, void *data);
 static void keypressmod(struct wl_listener *listener, void *data);
@@ -402,6 +406,8 @@ static struct wl_listener request_start_drag = {.notify = requeststartdrag};
 static struct wl_listener start_drag = {.notify = startdrag};
 static struct wl_listener session_lock_create_lock = {.notify = locksession};
 static struct wl_listener session_lock_mgr_destroy = {.notify = destroysessionmgr};
+
+xkb_layout_index_t status_layout_idx = -1;
 
 #ifdef XWAYLAND
 static void activatex11(struct wl_listener *listener, void *data);
@@ -863,6 +869,8 @@ createkeyboard(struct wlr_keyboard *keyboard)
 
 	/* And add the keyboard to our list of keyboards */
 	wl_list_insert(&keyboards, &kb->link);
+
+	kblayoutnotify(kb, 1);
 }
 
 void
@@ -1046,6 +1054,9 @@ createnotify(struct wl_listener *listener, void *data)
 	c = xdg_surface->data = ecalloc(1, sizeof(*c));
 	c->surface.xdg = xdg_surface;
 	c->bw = borderpx;
+	if (kblayout_perclient)
+		c->layout_idx = xkb_state_serialize_layout(
+				wlr_seat_get_keyboard(seat)->xkb_state, XKB_STATE_LAYOUT_EFFECTIVE);
 
 	LISTEN(&xdg_surface->events.map, &c->map, mapnotify);
 	LISTEN(&xdg_surface->events.unmap, &c->unmap, unmapnotify);
@@ -1257,6 +1268,9 @@ focusclient(Client *c, int lift)
 	int i, unused_lx, unused_ly, old_client_type;
 	Client *old_c = NULL;
 	LayerSurface *old_l = NULL;
+	xkb_mod_mask_t mdepr, mlatc, mlock;
+	xkb_layout_index_t ldepr, llatc, llock;
+	struct wlr_keyboard *kb = wlr_seat_get_keyboard(seat);
 
 	if (locked)
 		return;
@@ -1321,10 +1335,21 @@ focusclient(Client *c, int lift)
 	motionnotify(0);
 
 	/* Have a client, so focus its top-level wlr_surface */
-	client_notify_enter(client_surface(c), wlr_seat_get_keyboard(seat));
+	client_notify_enter(client_surface(c), kb);
 
 	/* Activate the new client */
 	client_activate_surface(client_surface(c), 1);
+
+	/* Update keyboard layout */
+	if (kblayout_perclient) {
+		mdepr = xkb_state_serialize_mods(kb->xkb_state, XKB_STATE_MODS_DEPRESSED);
+		mlatc = xkb_state_serialize_mods(kb->xkb_state, XKB_STATE_MODS_LATCHED);
+		mlock = xkb_state_serialize_mods(kb->xkb_state, XKB_STATE_MODS_LOCKED);
+		ldepr = xkb_state_serialize_layout(kb->xkb_state, XKB_STATE_LAYOUT_DEPRESSED);
+		llatc = xkb_state_serialize_layout(kb->xkb_state, XKB_STATE_LAYOUT_LATCHED);
+		llock = c->layout_idx;
+		xkb_state_update_mask(kb->xkb_state, mdepr, mlatc, mlock, ldepr, llatc, llock);
+	}
 }
 
 void
@@ -1457,6 +1482,41 @@ inputdevice(struct wl_listener *listener, void *data)
 	wlr_seat_set_capabilities(seat, caps);
 }
 
+void
+kblayoutnotify(Keyboard *kb, int update)
+{
+	FILE *f;
+	Client *c;
+	xkb_layout_index_t old = kb->layout_idx;
+
+	if (update) {
+		kb->layout_idx = xkb_state_serialize_layout(kb->wlr_keyboard->xkb_state,
+				XKB_STATE_LAYOUT_EFFECTIVE);
+
+		// Update client layout
+		if (kblayout_perclient && kb->layout_idx != old && (c = focustop(selmon)))
+			c->layout_idx = kb->layout_idx;
+	}
+
+	// If layout did not change, do nothing
+	if (status_layout_idx == kb->layout_idx)
+		return;
+	status_layout_idx = kb->layout_idx;
+
+	// Save current layout to kblayout_file
+	if (*kblayout_file && (f = fopen(kblayout_file, "w"))) {
+		fputs(xkb_keymap_layout_get_name(kb->wlr_keyboard->keymap,
+				kb->layout_idx), f);
+		fclose(f);
+	}
+
+	// Run kblayout_cmd
+	if (kblayout_cmd[0] && fork() == 0) {
+		execvp(kblayout_cmd[0], (char *const *)kblayout_cmd);
+		die("dwl: execvp %s failed:", kblayout_cmd[0]);
+	}
+}
+
 int
 keybinding(uint32_t mods, xkb_keycode_t keycode)
 {
@@ -1492,6 +1552,8 @@ keypress(struct wl_listener *listener, void *data)
 
 	IDLE_NOTIFY_ACTIVITY;
 
+	kblayoutnotify(kb, 0);
+
 	/* On _press_ if there is no active screen locker,
 	 * attempt to process a compositor keybinding. */
 	if (!locked && !input_inhibit_mgr->active_inhibitor
@@ -1523,6 +1585,9 @@ keypressmod(struct wl_listener *listener, void *data)
 	/* This event is raised when a modifier key, such as shift or alt, is
 	 * pressed. We simply communicate this to the client. */
 	Keyboard *kb = wl_container_of(listener, kb, modifiers);
+
+	kblayoutnotify(kb, 1);
+
 	/*
 	 * A seat can only have one keyboard, but this is a limitation of the
 	 * Wayland protocol - not wlroots. We assign all connected keyboards to the
