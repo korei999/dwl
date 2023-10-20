@@ -2805,7 +2805,8 @@ zoom(const Arg *arg)
 	wl_list_remove(&sel->link);
 	wl_list_insert(&clients, &sel->link);
 
-	focusclient(sel, 1);
+  /* prevent from focusing master */
+	/* focusclient(sel, 1); */
 	arrange(selmon);
 }
 
