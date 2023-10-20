@@ -408,7 +408,7 @@ static Atom netatom[NetLast];
 #endif
 
 /* configuration, allows nested code to access above variables */
-#include "config.h"
+#include "config.def.h"
 
 /* attempt to encapsulate suck into one file */
 #include "client.h"
