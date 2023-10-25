@@ -202,6 +202,7 @@ static const Key keys[] = {
   { SUPER, Key_s, setlayout, { .v = &layouts[1] } },
   { SUPER, Key_v, setlayout, { .v = &layouts[2] } },
   { SUPER, Key_grave, togglefloating, { 0 } },
+  { SUPER | SHIFT, Key_s, togglesticky, { 0 } },
   { SUPER, Key_f, togglefullscreen, { 0 } },
   { SUPER, Key_g, zoom, { 0 } },
   { SUPER, Key_Tab, view, { 0 } },
