@@ -16,10 +16,9 @@ static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0}; /* You can al
 
 /* Autostart */
 static const char *const autostart[] = {
-        "wbg", "/path/to/your/image", NULL,
-        NULL /* terminate */
+	"/home/korei/.config/dwl/dwlinit.sh", NULL,
+	NULL /* terminate */
 };
-
 
 /* tagging - TAGCOUNT must be no greater than 31 */
 #define TAGCOUNT (10)
@@ -168,6 +167,7 @@ static const char* Thunar[] = { "Thunar", NULL };
 static const Key keys[] = {
   /* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
   /* modifier		key				function		argument */
+  { SUPER, Key_b, togglebar, { 0 } },
   { 0, Key_XF86AudioPlay, spawn, { .v = AudioPlayPause } },
   { 0, Key_XF86AudioPause, spawn, { .v = AudioPause } },
   { 0, Key_XF86AudioNext, spawn, { .v = AudioNext } },
