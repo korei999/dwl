@@ -112,67 +112,131 @@ LIBINPUT_CONFIG_TAP_MAP_LMR -- 1/2/3 finger tap maps to left/middle/right
 static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TAP_MAP_LRM;
 
 /* If you want to use the windows key for MODKEY, use WLR_MODIFIER_LOGO */
-#define MODKEY WLR_MODIFIER_ALT
+#define MODKEY WLR_MODIFIER_LOGO
+#define SHIFT WLR_MODIFIER_SHIFT
+#define ALT WLR_MODIFIER_ALT
+#define CTRL WLR_MODIFIER_CTRL
+#define SUPER WLR_MODIFIER_LOGO
 
-#define TAGKEYS(KEY,SKEY,TAG) \
+#define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
 	{ MODKEY|WLR_MODIFIER_CTRL,  KEY,            toggleview,      {.ui = 1 << TAG} }, \
-	{ MODKEY|WLR_MODIFIER_SHIFT, SKEY,           tag,             {.ui = 1 << TAG} }, \
-	{ MODKEY|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT,SKEY,toggletag, {.ui = 1 << TAG} }
+	{ MODKEY|WLR_MODIFIER_SHIFT, KEY,            tag,             {.ui = 1 << TAG} }, \
+	{ MODKEY|WLR_MODIFIER_CTRL|WLR_MODIFIER_SHIFT,KEY,toggletag,  {.ui = 1 << TAG} }
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *termcmd[] = { "foot", NULL };
-static const char *menucmd[] = { "bemenu-run", NULL };
+static const char* Term[] = { "footclient", NULL };
+static const char* TermAlt[] = { "foot", NULL };
+static const char* Menu[] = { "fuzzel", NULL };
+static const char* PowerMenu[] = { "powermenu.sh", NULL };
+static const char* AudioUpdate[] = { "pkill", "-RTMIN+12", "someblocks", NULL };
+static const char* AudioLower[] = { "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%-", NULL };
+static const char* AudioRaise[] = { "wpctl", "set-volume", "-l", "1", "@DEFAULT_AUDIO_SINK@", "3%+", NULL };
+static const char* AudioMute[] = { "wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle", NULL };
+static const char* MuteMic[] = { "MuteMic.sh", NULL };
+static const char* AudioPlayPause[] = { "playerctl", "play-pause", NULL };
+static const char* AudioPause[] = { "playerctl", "pause", NULL };
+static const char* AudioNext[] = { "playerctl", "next", NULL };
+static const char* AudioPrev[] = { "playerctl", "previous", NULL };
+static const char* Mako[] = { "mako.sh", NULL };
+static const char* Mixer[] = { "footclient", "pulsemixer", NULL };
+static const char* Emoji[] = { "emoji.sh", NULL };
+static const char* Calc[] = { "footclient", "-e", "qalc", NULL };
+static const char* Print[] = { "PrintDwl.sh", NULL };
+static const char* PrintSel[] = { "PrintDwl.sh", "Select", NULL };
+static const char* PrintSave[] = { "PrintDwl.sh", "Save", NULL };
+static const char* PrintSelSave[] = { "PrintDwl.sh", "SelectSave", NULL };
+static const char* BMonUp[] = { "light", "-T", "1.4", NULL };
+static const char* BMonDown[] = { "light", "-T", "0.72", NULL };
+static const char* BufferSave[] = { "buffer-save.sh", NULL };
+static const char* BufferToggle[] = { "buffer-toggle.sh", NULL };
+static const char* RecToggle[] = { "rec-toggle.sh", NULL };
+static const char* ScreenLock[] = { "Lock.sh", "lock", NULL };
+static const char* Swayidle[] = { "Lock.sh", "toggle", NULL };
+static const char* Thunar[] = { "Thunar", NULL };
 
+#include "keys.h"
 static const Key keys[] = {
-	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
-	/* modifier                  key                 function        argument */
-	{ MODKEY,                    XKB_KEY_p,          spawn,          {.v = menucmd} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Return,     spawn,          {.v = termcmd} },
-	{ MODKEY,                    XKB_KEY_j,          focusstack,     {.i = +1} },
-	{ MODKEY,                    XKB_KEY_k,          focusstack,     {.i = -1} },
-	{ MODKEY,                    XKB_KEY_i,          incnmaster,     {.i = +1} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_i,          incnmaster,     {.i = -1} },
-    { MODKEY,                    XKB_KEY_a,      	 rotatetags,     {.i = -1} },
-    { MODKEY,                    XKB_KEY_d,      	 rotatetags,     {.i =  1} },
-    { MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_A,      	 rotatetags,     {.i = -2} },
-    { MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_D,      	 rotatetags,     {.i =  2} },
-	{ MODKEY,                    XKB_KEY_h,          setmfact,       {.f = -0.05} },
-	{ MODKEY,                    XKB_KEY_l,          setmfact,       {.f = +0.05} },
-	{ MODKEY,                    XKB_KEY_Return,     zoom,           {0} },
-	{ MODKEY,                    XKB_KEY_Tab,        view,           {0} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_C,          killclient,     {0} },
-	{ MODKEY,                    XKB_KEY_t,          setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                    XKB_KEY_f,          setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                    XKB_KEY_m,          setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                    XKB_KEY_space,      setlayout,      {0} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_space,      togglefloating, {0} },
-	{ MODKEY,                    XKB_KEY_e,         togglefullscreen, {0} },
-	{ MODKEY,                    XKB_KEY_0,          view,           {.ui = ~0} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_parenright, tag,            {.ui = ~0} },
-	{ MODKEY,                    XKB_KEY_comma,      focusmon,       {.i = WLR_DIRECTION_LEFT} },
-	{ MODKEY,                    XKB_KEY_period,     focusmon,       {.i = WLR_DIRECTION_RIGHT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_less,       tagmon,         {.i = WLR_DIRECTION_LEFT} },
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_greater,    tagmon,         {.i = WLR_DIRECTION_RIGHT} },
-	TAGKEYS(          XKB_KEY_1, XKB_KEY_exclam,                     0),
-	TAGKEYS(          XKB_KEY_2, XKB_KEY_at,                         1),
-	TAGKEYS(          XKB_KEY_3, XKB_KEY_numbersign,                 2),
-	TAGKEYS(          XKB_KEY_4, XKB_KEY_dollar,                     3),
-	TAGKEYS(          XKB_KEY_5, XKB_KEY_percent,                    4),
-	TAGKEYS(          XKB_KEY_6, XKB_KEY_asciicircum,                5),
-	TAGKEYS(          XKB_KEY_7, XKB_KEY_ampersand,                  6),
-	TAGKEYS(          XKB_KEY_8, XKB_KEY_asterisk,                   7),
-	TAGKEYS(          XKB_KEY_9, XKB_KEY_parenleft,                  8),
-	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          quit,           {0} },
-
+  /* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
+  /* modifier		key				function		argument */
+  { 0, Key_XF86AudioPlay, spawn, { .v = AudioPlayPause } },
+  { 0, Key_XF86AudioPause, spawn, { .v = AudioPause } },
+  { 0, Key_XF86AudioNext, spawn, { .v = AudioNext } },
+  { 0, Key_XF86AudioPrev, spawn, { .v = AudioPrev } },
+  { 0, Key_XF86AudioLowerVolume, spawn, { .v = AudioLower } },
+  { 0, Key_XF86AudioRaiseVolume, spawn, { .v = AudioRaise } },
+  { 0, Key_XF86AudioMute, spawn, { .v = AudioMute } },
+  { 0, Key_XF86AudioMicMute, spawn, { .v = MuteMic } },
+  { SUPER, Key_n, spawn, { .v = MuteMic } },
+  { 0, Key_XF86AudioLowerVolume, spawn, { .v = AudioUpdate } },
+  { 0, Key_XF86AudioRaiseVolume, spawn, { .v = AudioUpdate } },
+  { 0, Key_XF86AudioMute, spawn, { .v = AudioUpdate } },
+  { 0, Key_XF86MonBrightnessUp, spawn, { .v = BMonUp } },
+  { 0, Key_XF86MonBrightnessDown, spawn, { .v = BMonDown } },
+  { 0, Key_Print, spawn, { .v = Print } },
+  { SUPER, Key_Print, spawn, { .v = PrintSave } },
+  { SHIFT, Key_Print, spawn, { .v = PrintSel } },
+  { SUPER | SHIFT, Key_Print, spawn, { .v = PrintSelSave } },
+  { SUPER | SHIFT, Key_Insert, spawn, { .v = Mako } },
+  { SUPER, Key_Insert, spawn, { .v = Mixer } },
+  { SUPER | CTRL, Key_Insert, spawn, { .v = Swayidle } },
+  { SUPER, Key_e, spawn, { .v = Calc } },
+  { SUPER, Key_t, spawn, { .v = Thunar } },
+  { SUPER, Key_p, spawn, { .v = Menu } },
+  { SUPER | CTRL, Key_p, spawn, { .v = Emoji } },
+  { SUPER, Key_Return, spawn, { .v = Term } },
+  { SUPER | SHIFT, Key_Return, spawn, { .v = TermAlt } },
+  { SUPER, Key_p, spawn, { .v = Menu } },
+  { SUPER, Key_j, focusstack, { .i = +1 } },
+  { SUPER, Key_k, focusstack, { .i = -1 } },
+  { SUPER, Key_z, focusstack, { .i = +1 } },
+  { SUPER, Key_x, focusstack, { .i = -1 } },
+  { SUPER, Key_i, incnmaster, { .i = +1 } },
+  { SUPER | SHIFT, Key_i, incnmaster, { .i = -1 } },
+  { SUPER, Key_h, setmfact, { .f = -0.05 } },
+  { SUPER, Key_l, setmfact, { .f = +0.05 } },
+  { SUPER, Key_c, setlayout, { .v = &layouts[0] } },
+  { SUPER, Key_s, setlayout, { .v = &layouts[1] } },
+  { SUPER, Key_v, setlayout, { .v = &layouts[2] } },
+  { SUPER, Key_grave, togglefloating, { 0 } },
+  { SUPER, Key_f, togglefullscreen, { 0 } },
+  { SUPER, Key_g, zoom, { 0 } },
+  { SUPER, Key_Tab, view, { 0 } },
+  { SUPER, Key_a, rotatetags, { .i = -1 } },
+  { SUPER, Key_d, rotatetags, { .i =  1 } },
+  { SUPER | SHIFT, Key_a, rotatetags, { .i = -2 } },
+  { SUPER | SHIFT, Key_d, rotatetags, { .i =  2 } },
+  { SUPER, Key_w, killclient, { 0 } },
+  { ALT, Key_Escape, spawn, { .v = PowerMenu } },
+  { ALT, Key_Caps_Lock, spawn, { .v = PowerMenu } },
+  { SUPER, Key_Home, spawn, { .v = BufferToggle } },
+  { SUPER, Key_End, spawn, { .v = BufferSave } },
+  { SUPER, Key_F12, spawn, { .v = RecToggle } },
+  { SUPER | SHIFT, Key_BackSpace, spawn, { .v = ScreenLock } },
+  { SUPER, Key_comma, focusmon, { .i = WLR_DIRECTION_LEFT } },
+  { SUPER, Key_period, focusmon, { .i = WLR_DIRECTION_RIGHT } },
+  { SUPER | SHIFT, Key_comma, tagmon, { .i = WLR_DIRECTION_LEFT } },
+  { SUPER | SHIFT, Key_period, tagmon, { .i = WLR_DIRECTION_RIGHT } },
+  TAGKEYS(Key_1, 0),
+  TAGKEYS(Key_2, 1),
+  TAGKEYS(Key_3, 2),
+  TAGKEYS(Key_4, 3),
+  TAGKEYS(Key_5, 4),
+  TAGKEYS(Key_6, 5),
+  TAGKEYS(Key_7, 6),
+  TAGKEYS(Key_8, 7),
+  TAGKEYS(Key_9, 8),
+  TAGKEYS(Key_0, 9),
+	{ SUPER | SHIFT,	Key_q,				quit,			{ 0 } },
 	/* Ctrl-Alt-Backspace and Ctrl-Alt-Fx used to be handled by X server */
 	{ WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_Terminate_Server, quit, {0} },
-#define CHVT(n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT,XKB_KEY_XF86Switch_VT_##n, chvt, {.ui = (n)} }
-	CHVT(1), CHVT(2), CHVT(3), CHVT(4), CHVT(5), CHVT(6),
-	CHVT(7), CHVT(8), CHVT(9), CHVT(10), CHVT(11), CHVT(12),
+#define CHVT(KEY,n) { WLR_MODIFIER_CTRL|WLR_MODIFIER_ALT, KEY, chvt, {.ui = (n)} }
+	CHVT(Key_F1, 1), CHVT(Key_F2,  2),  CHVT(Key_F3,  3),  CHVT(Key_F4,  4),
+	CHVT(Key_F5, 5), CHVT(Key_F6,  6),  CHVT(Key_F7,  7),  CHVT(Key_F8,  8),
+	CHVT(Key_F9, 9), CHVT(Key_F10, 10), CHVT(Key_F11, 11), CHVT(Key_F12, 12),
 };
 
 static const Button buttons[] = {
