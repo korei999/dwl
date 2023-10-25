@@ -19,6 +19,11 @@ static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0}; /* You can al
 /* logging */
 static int log_level = WLR_ERROR;
 
+/* keyboard layout change notification for status bar */
+static const char  kblayout_file[] = "/tmp/dwl-keymap";
+static const char *kblayout_cmd[]  = {"pkill", "-RTMIN+1", "someblocks", NULL};
+static const int   kblayout_perclient = 0;
+
 static const Rule rules[] = {
 	/* app_id     title       tags mask     isfloating   monitor */
 	/* examples:
