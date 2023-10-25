@@ -5,12 +5,12 @@
                         (hex & 0xFF) / 255.0f }
 /* appearance */
 static const int sloppyfocus               = 1;  /* focus follows mouse */
-static const int bypass_surface_visibility = 0;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
+static const int bypass_surface_visibility = 1;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
 static const int smartborders              = 1;
-static const unsigned int borderpx         = 1;  /* border pixel of windows */
-static const float bordercolor[]           = COLOR(0x444444ff);
-static const float focuscolor[]            = COLOR(0x005577ff);
-static const float urgentcolor[]           = COLOR(0xff0000ff);
+static const unsigned int borderpx         = 3;  /* border pixel of windows */
+static const float bordercolor[]           = COLOR(0x00000000);
+static const float focuscolor[]            = COLOR(0x7aa6daff);
+static const float urgentcolor[]           = COLOR(0xd54e53ff);
 /* To conform the xdg-protocol, set the alpha to zero to restore the old behavior */
 static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0}; /* You can also use glsl colors */
 
@@ -35,11 +35,8 @@ static const int   kblayout_perclient = 0;
 static const int allow_constrain      = 1;
 
 static const Rule rules[] = {
-	/* app_id     title       tags mask     isfloating   monitor */
-	/* examples:
-	{ "Gimp",     NULL,       0,            1,           -1 },
-	*/
-	{ "zxvcsadfwqre",  NULL,       1 << 8,       0,           -1 },
+	/* app_id      title       tags mask  isfloating opacity          monitor */
+	{ "corectrl",  NULL,       0 << 0,       0,           -1 },
 };
 
 /* layout(s) */
@@ -63,21 +60,22 @@ static const MonitorRule monrules[] = {
 
 /* keyboard */
 static const struct xkb_rule_names xkb_rules = {
-	/* can specify fields: rules, model, layout, variant, options */
-	/* example:
-	.options = "ctrl:nocaps",
-	*/
-	.options = NULL,
+  /* can specify fields: rules, model, layout, variant, options */
+  /* example:
+  .options = "ctrl:nocaps",
+  */
+  .layout = "us,ua",
+  .options = "grp:win_space_toggle,caps:escape",
 };
 
-static const int repeat_rate = 25;
-static const int repeat_delay = 600;
+static const int repeat_rate = 60;
+static const int repeat_delay = 170;
 
 /* Trackpad */
 static const int tap_to_click = 1;
 static const int tap_and_drag = 1;
 static const int drag_lock = 1;
-static const int natural_scrolling = 0;
+static const int natural_scrolling = 1;
 static const int disable_while_typing = 1;
 static const int left_handed = 0;
 static const int middle_button_emulation = 0;
