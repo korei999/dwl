@@ -104,6 +104,7 @@ LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE
 */
 static const enum libinput_config_accel_profile accel_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT;
 static const double accel_speed = -0.5;
+static const int cursor_timeout = 2;
 
 /* separate values for trackpad */
 static const enum libinput_config_accel_profile accel_profile_trackpad = LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
