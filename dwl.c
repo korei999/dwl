@@ -357,7 +357,6 @@ static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglesticky(const Arg *arg);
 static void togglefullscreen(const Arg *arg);
-static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unlocksession(struct wl_listener *listener, void *data);
 static void unmaplayersurfacenotify(struct wl_listener *listener, void *data);
@@ -3092,23 +3091,6 @@ togglefullscreen(const Arg *arg)
 	Client *sel = focustop(selmon, 0);
 	if (sel)
 		setfullscreen(sel, !sel->isfullscreen);
-}
-
-void
-toggletag(const Arg *arg)
-{
-	uint32_t newtags;
-	Client *sel = focustop(selmon, 0);
-	if (!sel)
-		return;
-	newtags = sel->tags ^ (arg->ui & TAGMASK);
-	if (!newtags)
-		return;
-
-	sel->tags = newtags;
-	focusclient(focustop(selmon, 0), 1);
-	arrange(selmon);
-	printstatus();
 }
 
 void
