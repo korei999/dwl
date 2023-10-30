@@ -2,10 +2,6 @@
  * See LICENSE file for copyright and license details.
  */
 
-#ifndef POINTERCONSTRAINTS
-#define POINTERCONSTRAINTS
-#endif
-
 #include <getopt.h>
 #include <libinput.h>
 #include <limits.h>
@@ -770,8 +766,10 @@ chvt(const Arg *arg)
 void
 checkidleinhibitor(struct wlr_surface *exclude)
 {
+	Client *c;
 	int inhibited = 0, unused_lx, unused_ly;
 	struct wlr_idle_inhibitor_v1 *inhibitor;
+
 	wl_list_for_each(inhibitor, &idle_inhibit_mgr->inhibitors, link) {
 		struct wlr_surface *surface = wlr_surface_get_root_surface(inhibitor->surface);
 		struct wlr_scene_tree *tree = surface->data;
@@ -781,6 +779,10 @@ checkidleinhibitor(struct wlr_surface *exclude)
 			break;
 		}
 	}
+
+	c = focustop(selmon, 0);
+	if (c && c->isfullscreen)
+		inhibited = 1;
 
 	wlr_idle_set_enabled(idle, NULL, !inhibited);
 	wlr_idle_notifier_v1_set_inhibited(idle_notifier, inhibited);
