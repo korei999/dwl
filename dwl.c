@@ -654,7 +654,7 @@ axisnotify(struct wl_listener *listener, void *data)
 	 * for example when you move the scroll wheel. */
 	struct wlr_pointer_axis_event *event = data;
 	IDLE_NOTIFY_ACTIVITY;
-	handlecursoractivity(true);
+	handlecursoractivity(false);
 	/* TODO: allow usage of scroll whell for mousebindings, it can be implemented
 	 * checking the event's orientation and the delta of the event */
 	/* Notify the client with pointer focus of the axis event. */
@@ -673,7 +673,7 @@ buttonpress(struct wl_listener *listener, void *data)
 	const Button *b;
 
 	IDLE_NOTIFY_ACTIVITY;
-	handlecursoractivity(true);
+	handlecursoractivity(false);
 
 	switch (event->state) {
 	case WLR_BUTTON_PRESSED:
@@ -1881,14 +1881,15 @@ hidebehindmonocle(Monitor *m)
 }
 
 void
-handlecursoractivity(bool restore_focus)
+handlecursoractivity(bool restore_cursor)
 {
 	wl_event_source_timer_update(hide_source, cursor_timeout * 1000);
+	if (!restore_cursor) {
+		return;
+	}
 	if (cursor_hidden) {
 		wlr_xcursor_manager_set_cursor_image(cursor_mgr, (cursor_image = "left_ptr"), cursor);
 		cursor_hidden = false;
-    if (restore_focus)
-      motionnotify(0, NULL, 0, 0, 0, 0);
 	}
 }
 
@@ -1896,7 +1897,6 @@ int
 hidecursor(void *data)
 {
 	wlr_cursor_set_image(cursor, NULL, 0, 0, 0, 0, 0, 0);
-	wlr_seat_pointer_notify_clear_focus(seat);
 	cursor_hidden = true;
 	return 1;
 }
@@ -2270,8 +2270,7 @@ motionnotify(uint32_t time, struct wlr_input_device *device, double dx, double d
 		wl_list_for_each(constraint, &pointer_constraints->constraints, link)
 			cursorconstrain(constraint);
 
-    if (active_constraint) {
-      handlecursoractivity(true);
+		if (active_constraint) {
 			constraint = active_constraint->constraint;
 			if (constraint->surface == surface
 					&& wlr_region_confine(&active_confine, sx, sy, sx + dx,
@@ -2285,7 +2284,7 @@ motionnotify(uint32_t time, struct wlr_input_device *device, double dx, double d
 		wlr_cursor_move(cursor, device, dx, dy);
 
 		IDLE_NOTIFY_ACTIVITY;
-		handlecursoractivity(false);
+		handlecursoractivity(true);
 
 		/* Update selmon (even while dragging a window) */
 		if (sloppyfocus)
