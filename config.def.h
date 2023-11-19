@@ -160,6 +160,7 @@ static const char* RecToggle[] = { "rec-toggle.sh", NULL };
 static const char* ScreenLock[] = { "Lock.sh", "lock", NULL };
 static const char* Swayidle[] = { "Lock.sh", "toggle", NULL };
 static const char* Thunar[] = { "Thunar", NULL };
+static const char* VirtualKeyboard[] = { "VirtualKeyboard.sh", NULL };
 
 #include "keys.h"
 static const Key keys[] = {
@@ -194,6 +195,7 @@ static const Key keys[] = {
   { SUPER,                                Key_Return,                spawn,            { .v = Term }               },
   { SUPER | SHIFT,                        Key_Return,                spawn,            { .v = TermAlt }            },
   { SUPER,                                Key_p,                     spawn,            { .v = Menu }               },
+  { SUPER,                         		  Key_m,                     spawn,            { .v = VirtualKeyboard }    },
   { SUPER,                                Key_j,                     focusstack,       { .i = +1 }                 },
   { SUPER,                                Key_k,                     focusstack,       { .i = -1 }                 },
   { SUPER,                                Key_z,                     focusstack,       { .i = +1 }                 },
