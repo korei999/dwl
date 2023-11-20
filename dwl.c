@@ -3365,10 +3365,19 @@ rotatetags(const Arg *arg)
 	Arg newarg;
 	int i = arg->i;
 	int nextseltags = 0, curseltags = selmon->tagset[selmon->seltags];
-  bool shift = false;
+	bool shift = false;
+	bool toggle = false;
 
-  if (2 <= abs(i))
-    shift = true;
+	switch(abs(i)) {
+		default: break;
+		case R_SHIFT_R:
+			shift = true;
+			break;
+		case R_TOGGLEVIEW_R:
+			toggle = true;
+			break;
+	};
+
 
 	if (i > 0)
 		nextseltags = (curseltags << 1) | (curseltags >> (TAGCOUNT - 1));
@@ -3377,12 +3386,15 @@ rotatetags(const Arg *arg)
 
 	newarg.i = nextseltags;
 
-  if (shift) {
-    tag(&newarg);
-    return;
-  }
-  else
-    view(&newarg);
+	if (shift) {
+		tag(&newarg);
+		return;
+	}
+	if (toggle) {
+		toggleview(&newarg);
+		return;
+	}
+	view(&newarg);
 }
 
 #ifdef XWAYLAND

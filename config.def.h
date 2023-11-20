@@ -23,6 +23,15 @@ static const char *const autostart[] = {
 /* tagging - TAGCOUNT must be no greater than 31 */
 #define TAGCOUNT (10)
 
+typedef enum {
+	R_VIEW_L = -1,
+	R_VIEW_R = 1,
+	R_SHIFT_L = -2,
+	R_SHIFT_R = 2,
+	R_TOGGLEVIEW_L = -3,
+	R_TOGGLEVIEW_R = 3
+} RotateTags;
+
 /* logging */
 static int log_level = WLR_ERROR;
 
@@ -212,10 +221,12 @@ static const Key keys[] = {
   { SUPER,                                Key_f,                     togglefullscreen, { 0 }                       },
   { SUPER,                                Key_g,                     zoom,             { 0 }                       },
   { SUPER,                                Key_Tab,                   view,             { 0 }                       },
-  { SUPER,                                Key_a,                     rotatetags,       { .i = -1 }                 },
-  { SUPER,                                Key_d,                     rotatetags,       { .i = 1 }                  },
-  { SUPER | SHIFT,                        Key_a,                     rotatetags,       { .i = -2 }                 },
-  { SUPER | SHIFT,                        Key_d,                     rotatetags,       { .i = 2 }                  },
+  { SUPER,                                Key_a,                     rotatetags,       { .i = R_VIEW_L }           },
+  { SUPER,                                Key_d,                     rotatetags,       { .i = R_VIEW_R }           },
+  { SUPER | SHIFT,                        Key_a,                     rotatetags,       { .i = R_SHIFT_L }          },
+  { SUPER | SHIFT,                        Key_d,                     rotatetags,       { .i = R_SHIFT_R }          },
+  { SUPER | ALT,                          Key_a,                     rotatetags,       { .i = R_TOGGLEVIEW_L }     },
+  { SUPER | ALT,                          Key_d,                     rotatetags,       { .i = R_TOGGLEVIEW_R }     },
   { SUPER,                                Key_w,                     killclient,       { 0 }                       },
   { ALT,                                  Key_Escape,                spawn,            { .v = PowerMenu }          },
   { ALT,                                  Key_Caps_Lock,             spawn,            { .v = PowerMenu }          },
