@@ -11,6 +11,8 @@ static const unsigned int borderpx         = 3;  /* border pixel of windows */
 static const float bordercolor[]           = COLOR(0x00000000);
 static const float focuscolor[]            = COLOR(0x7aa6daff);
 static const float urgentcolor[]           = COLOR(0xd54e53ff);
+static const float stickycolor[]           = COLOR(0x8abeb7ff);
+static const float mixedcolor[]            = COLOR(0xb5bd68ff);
 /* To conform the xdg-protocol, set the alpha to zero to restore the old behavior */
 static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0}; /* You can also use glsl colors */
 

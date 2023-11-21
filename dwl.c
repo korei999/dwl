@@ -766,7 +766,7 @@ chvt(const Arg *arg)
 void
 checkidleinhibitor(struct wlr_surface *exclude)
 {
-	Client *c;
+	Client *c = focustop(selmon, 0);
 	int inhibited = 0, unused_lx, unused_ly;
 	struct wlr_idle_inhibitor_v1 *inhibitor;
 
@@ -780,7 +780,6 @@ checkidleinhibitor(struct wlr_surface *exclude)
 		}
 	}
 
-	c = focustop(selmon, 0);
 	if (c && c->isfullscreen)
 		inhibited = 1;
 
@@ -1713,13 +1712,19 @@ focusclient(Client *c, int lift)
 		wl_list_insert(&fstack, &c->flink);
 		selmon = c->mon;
 		c->isurgent = 0;
-    hidebehindmonocle(c->mon);
+		hidebehindmonocle(c->mon);
 		client_restack_surface(c);
 
 		/* Don't change border color if there is an exclusive focus or we are
 		 * handling a drag operation */
-		if (!exclusive_focus && !seat->drag)
-			client_set_border_color(c, focuscolor);
+		if (!exclusive_focus && !seat->drag) {
+			if (c->issticky) {
+				client_set_border_color(c, mixedcolor);
+			}
+			else
+				client_set_border_color(c, focuscolor);
+		}
+
 	}
 
 	/* Deactivate old client if focus is changing */
@@ -1736,7 +1741,10 @@ focusclient(Client *c, int lift)
 		/* Don't deactivate old client if the new one wants focus, as this causes issues with winecfg
 		 * and probably other clients */
 		} else if (old_c && !client_is_unmanaged(old_c) && (!c || !client_wants_focus(c))) {
-			client_set_border_color(old_c, bordercolor);
+			if (old_c->issticky)
+				client_set_border_color(old_c, stickycolor);
+			else
+				client_set_border_color(old_c, bordercolor);
 
 			client_activate_surface(old, 0);
 		}
@@ -2151,6 +2159,7 @@ mapnotify(struct wl_listener *listener, void *data)
 		}
 		goto unset_fullscreen;
 	}
+
 
 	for (i = 0; i < 4; i++) {
 		c->border[i] = wlr_scene_rect_create(c->scene, 0, 0, bordercolor);
@@ -3084,6 +3093,12 @@ togglesticky(const Arg *arg)
 	if (!sel)
 		return;
 	sel->issticky = !sel->issticky;
+
+	if (sel->issticky)
+		client_set_border_color(sel, mixedcolor);
+	else 
+		client_set_border_color(sel, focuscolor);
+
 	arrange(selmon);
 }
 
