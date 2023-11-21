@@ -654,7 +654,8 @@ axisnotify(struct wl_listener *listener, void *data)
 	 * for example when you move the scroll wheel. */
 	struct wlr_pointer_axis_event *event = data;
 	IDLE_NOTIFY_ACTIVITY;
-	handlecursoractivity(false);
+	if (cursor_hidden)
+		wlr_cursor_set_image(cursor, NULL, 0, 0, 0, 0, 0, 0);
 	/* TODO: allow usage of scroll whell for mousebindings, it can be implemented
 	 * checking the event's orientation and the delta of the event */
 	/* Notify the client with pointer focus of the axis event. */
@@ -2009,6 +2010,8 @@ keypress(struct wl_listener *listener, void *data)
 	uint32_t mods = wlr_keyboard_get_modifiers(kb->wlr_keyboard);
 
 	IDLE_NOTIFY_ACTIVITY;
+	if (cursor_hidden)
+		wlr_cursor_set_image(cursor, NULL, 0, 0, 0, 0, 0, 0);
 
 	kblayoutnotify(kb, 0);
 
