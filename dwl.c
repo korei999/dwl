@@ -3094,10 +3094,13 @@ togglesticky(const Arg *arg)
 		return;
 	sel->issticky = !sel->issticky;
 
-	if (sel->issticky)
+	if (sel->issticky) {
 		client_set_border_color(sel, mixedcolor);
-	else 
+	} else  {
 		client_set_border_color(sel, focuscolor);
+		if (!VISIBLEON(sel, selmon))
+			focusclient(focustop(selmon, 0), 1);
+	}
 
 	arrange(selmon);
 }
